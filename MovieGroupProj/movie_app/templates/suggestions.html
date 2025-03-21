@@ -1,0 +1,34 @@
+
+
+{% extends "layout.html" %}
+{% block content %}
+<!DOCTYPE html> 
+<div data-role="page" data-url="{{ url_for('suggestions') }}"></div>
+<html> 
+    <body> 
+        <table id="movies" class="table" style="width:100%">
+            <thead>
+              <tr class="tablehead">
+                  <th>Title</th>
+                  <th>Year</th>
+                  <th>Directors</th>
+                  <th>Genre</th>
+                  <th>Streaming</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+              <tr>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td class="directors">{{item[3]}}</td>
+                    <td>{{item[9]}}</td>
+                    <td>{{item[10]}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            </table>
+    </body> 
+</html>
+{% endblock %}
+
