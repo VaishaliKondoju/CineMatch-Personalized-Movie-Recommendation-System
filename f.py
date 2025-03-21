@@ -1,37 +1,19 @@
-
 import pandas as pd
-
 import os
 from json import loads, dumps
 from localStoragePy import localStoragePy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-
-
-os.environ["JAVA_HOME"] = "/Users/juliafrench/Downloads/jdk-21.0.2.jdk/Contents/Home/"
-os.environ["SPARK_HOME"] = "/Users/juliafrench/Documents/apache-spark/3.5.0/libexec"
-
 localStorage = localStoragePy('movie_app', 'text')
 
-from pyspark.sql import SparkSession
-from pyspark.sql import SQLContext
-spark = SparkSession.builder.master("local[*]").getOrCreate()
-sc = spark.sparkContext
-sc
-
 def movieTable():
-    sparkDF = spark.read.csv('/Users/juliafrench/Documents/MovieRecc/IMDb_Clean_CSV.csv', header=True, inferSchema=True)
-    df = sparkDF.toPandas()
-    
+    df = pd.read_csv('IMDb_Clean_CSV.csv')  # Updated path
     return df
-
 
 # Concatenate the features into one string (ensure these columns exist in your DataFrame)
 def transformClean():
-
     dataframe = movieTable()
-
     dataframe['combined_features'] = dataframe['Genre'] + ' ' + dataframe['Sub_Genre'] + ' ' + dataframe['Director'] + ' ' + dataframe['Year'].astype(str)
 
     # Convert textual data to numerical data using TF-IDF
@@ -40,7 +22,6 @@ def transformClean():
 
     # Compute the cosine similarity
     cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-
     return cosine_sim
 
 def getReccomendations(ids, numRec):
@@ -50,7 +31,7 @@ def getReccomendations(ids, numRec):
 
     df = movieTable()
     movieDF = df
-    movieDF['combined_features'] =  movieDF['Genre'] + ' ' + movieDF['Sub_Genre'] + ' ' + movieDF['Director'] + ' ' + movieDF['Year'].astype(str)
+    movieDF['combined_features'] = movieDF['Genre'] + ' ' + movieDF['Sub_Genre'] + ' ' + movieDF['Director'] + ' ' + movieDF['Year'].astype(str)
 
     recommendations = []
     recs = []
@@ -75,9 +56,7 @@ def getReccomendations(ids, numRec):
             # Add recommendations for this movie to the list
             recommendations.append(movieDF['movieID'].iloc[movie_indices].tolist())
         else:
-            recommendations.append([])  
-          
-            # Movie not found in the dataset
+            recommendations.append([])  # Movie not found in the dataset
 
         recs = recommendations
 
@@ -89,23 +68,17 @@ def getReccomendations(ids, numRec):
         [res.append(x) for x in flat_list if x not in res]
 
         rows = df[df['movieID'].isin(res)]
-
     return rows
-
-
-
-
 
 def selToList(li):
     li = li
-    # make list of selected ids
+    # Make list of selected ids
     newSt = li.replace("\"", "")
     newSt = newSt.replace("[", "")
     newSt = newSt.replace("]", "")
     splitSt = newSt.split(",")
 
     ids = [int(i) for i in splitSt]
-
 
     lenID = len(ids)
     if lenID == 1:
@@ -125,6 +98,3 @@ def selToList(li):
     
     recommendations = getReccomendations(ids, numRec)
     return recommendations
-
-
-
