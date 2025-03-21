@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from f import selToList, movieTable  # Assuming your functions are in f.py
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 @app.route('/')
 def home():
@@ -23,4 +24,5 @@ def get_recommendations():
     return jsonify(recommendations.to_dict(orient='records'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Use PORT env variable for Render
+    app.run(host='0.0.0.0', port=port, debug=False)
